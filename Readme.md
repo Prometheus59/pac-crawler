@@ -1,6 +1,6 @@
 # Pac-Crawler: Web Crawler for Pacman
 
-This is a web crawler that collects raw html for the first 10 results of searchs for the following categories:
+This is a web crawler that collects raw html for the first 10 results of searches for the following categories:
 - Pac-man
 - Bandai Namco
 - Video Games
