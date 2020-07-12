@@ -27,32 +27,60 @@ function WordCount200(str) {
 }
 
 /**
+ * Filters out undesirable sites
+ * @param {string} url - link to be filtered
+ */
+async function url_valid(url) {
+  const invalid_urls = ["youtube", "apps.apple", "play.google"];
+  var valid = true;
+  for (let x = 0; x < invalid_urls.length; x++) {
+    if (url.includes(invalid_urls[x])) {
+      valid = false;
+    }
+  }
+  return valid;
+}
+
+/**
  *
- * @param {*} url - Url to extract links from
+ * @param {string} url - Url to extract links from
  */
 async function get_links(url) {
   try {
     let links = [];
+    let linkcount = 10;
+
+    // Get data
     const response = await nodeFetch(url);
     const json = await response.json();
-    //console.log(json);
-    for (x = 0; x < 10; x++) {
+
+    for (let x = 0; x < 10; x++) {
+      console.log(json.items[x].title);
+    }
+
+    // Push data items to list
+    for (let x = 0; x < 10; x++) {
       let item = {};
       item.title = json.items[x].title;
       item.link = json.items[x].link;
-      console.log(json.items[x].title);
-      console.log(json.items[x].link + "\n");
-      // console.log(links[x]);
+      // console.log(json.items[x].title);
+      // console.log(json.items[x].link + "\n");
 
-      //links.push(json.items[x].link);
-      if (typeof item.title !== undefined) {
+      //Add valid items to list
+      const valid = await url_valid(item.link);
+      if (typeof item.title !== undefined && valid) {
+        console.log(`${item.link} pushed`);
         links.push(item);
+      } else {
+        console.log(`${item.link} not pushed, linkcount reduced`);
+        linkcount--;
       }
     }
-    //console.log(links);
+    console.log(`Linkcount is ${linkcount}`);
+
     let dataset = [];
-    let max = 10;
-    for (i = 0; i < 10; i++) {
+    // Push list items to dataset
+    for (let i = 0; i < linkcount; i++) {
       let resp = {};
       resp.title = links[i].title;
       let result = await parse_site(links[i].link);
@@ -60,11 +88,9 @@ async function get_links(url) {
       resp.content = await result;
       if (WordCount200(resp.content)) {
         dataset.push(resp);
-      } else {
-        max++;
       }
     }
-    return await dataset;
+    return dataset;
   } catch (error) {
     console.log(error);
   }
@@ -72,7 +98,7 @@ async function get_links(url) {
 
 /**
  *  Parse site, return HTML
- * @param {url to parse} url
+ * @param {string} url - url to parse
  */
 async function parse_site(url) {
   try {
@@ -95,7 +121,7 @@ async function main() {
   let dataset2 = await get_links(search_url_2);
   let dataset3 = await get_links(search_url_3);
 
-  for (x = 0; x < 10; x++) {
+  for (let x = 0; x < 10; x++) {
     // Standardize article name
     let name_str1 = "./Dataset/Pacman/article" + x;
 
@@ -108,7 +134,7 @@ async function main() {
     }
   }
 
-  for (x = 0; x < 10; x++) {
+  for (let x = 0; x < 10; x++) {
     let name_str2 = "./Dataset/BandaiNamco/article" + x;
 
     if (dataset2[x] !== undefined) {
@@ -119,7 +145,7 @@ async function main() {
     }
   }
 
-  for (x = 0; x < 10; x++) {
+  for (let x = 0; x < 10; x++) {
     let name_str3 = "./Dataset/VideoGames/article" + x;
     if (dataset3[x] !== undefined) {
       fs.writeFile(name_str3, dataset3[x].content, function (err) {
@@ -129,7 +155,7 @@ async function main() {
     }
   }
 
-  // return await dataset;
+  return await dataset;
   // console.log("Length of data is " + dataset.length);
 }
 
