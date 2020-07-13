@@ -17,7 +17,7 @@ const bn_urls = [
 
 const videogames_urls = [
   `https://www.googleapis.com/customsearch/v1?key=${key}&cx=009315961641472818372:kyqr5g9u5wc&q=videogames`,
-  `https://www.googleapis.com/customsearch/v1?key=${key}&cx=009315961641472818372:kyqr5g9u5wc&q=videogames&start=11`,
+  `https://www.googleapis.com/customsearch/v1?key=${key}&cx=009315961641472818372:kyqr5g9u5wc&q=videogames&start=31`,
   `https://www.googleapis.com/customsearch/v1?key=${key}&cx=009315961641472818372:kyqr5g9u5wc&q=videogames&start=21`,
 ];
 
@@ -72,15 +72,15 @@ async function get_links(url) {
       item.title = json.items[x].title;
       item.link = json.items[x].link;
       // console.log(json.items[x].title);
-      // console.log(json.items[x].link + "\n");
+      // console.log(json.items[x].link);
 
       //Add valid items to list
       const valid = await url_valid(item.link);
       if (typeof item.title !== undefined && valid) {
-        //console.log(`${item.link} pushed`);
+        // console.log(`${item.link} pushed \n`);
         links.push(item);
       } else {
-        //console.log(`${item.link} not pushed, linkcount reduced`);
+        // console.log(`${item.link} not pushed, linkcount reduced \n`);
         linkcount--;
       }
     }
@@ -91,9 +91,7 @@ async function get_links(url) {
     for (let i = 0; i < linkcount; i++) {
       let resp = {};
       resp.title = links[i].title;
-      let result = await parse_site(links[i].link);
-
-      resp.content = await result;
+      resp.content = await parse_site(links[i].link);
       if (WordCount200(resp.content)) {
         dataset.push(resp);
       }
@@ -102,7 +100,6 @@ async function get_links(url) {
   } catch (error) {
     console.log(error);
   }
-  console.log("Done searching for links");
 }
 
 /**
@@ -138,7 +135,7 @@ async function crawl(url_arr, name) {
       try {
         fs.writeFile(name_str, dataset[x].content, function (err) {
           if (err) throw err;
-          console.log(`File 'article${x}' saved successfully!`);
+          // console.log(`File 'article${x}' saved successfully!`);
         });
         file_count++;
       } catch (err) {
@@ -154,6 +151,7 @@ async function crawl(url_arr, name) {
  */
 async function main() {
   // Crawl Sites
+
   crawl(pacman_urls, "Pacman").then((count) => {
     console.log(`${count} links saved!`);
   });
